@@ -1,5 +1,5 @@
 import { TelegramMessage as Message } from "@codebam/cf-workers-telegram-bot";
-import { Database } from "./utils/db";
+import { Database, ImportData } from "./utils/db";
 import telegramifyMarkdown from "telegramify-markdown";
 import timespanParser from "timespan-parser";
 
@@ -49,8 +49,18 @@ export class CommandHandler {
     return await this.sendTextFile(chatId, "data.json", JSON.stringify(data, null, 2));
   }
 
-  async getFile(fileId: string) {
-    return await fetch(`https://api.telegram.org/file/bot${this.token}/${fileId}`);
+  async getFile(fileId: string): Promise<Response> {
+    const response = await fetch(`https://api.telegram.org/bot${this.token}/getFile?file_id=${fileId}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = (await response.json()) as { ok: boolean; result: { file_path: string }; error_code?: string; description?: string };
+    if (!data.ok) {
+      throw new Error(`Failed to get file: ${data.error_code} - ${data.description}`);
+    }
+    console.log(data.result.file_path);
+    return await fetch(`https://api.telegram.org/file/bot${this.token}/${data.result.file_path}`);
   }
 
   async handleStart(message: Message): Promise<void> {
@@ -63,7 +73,7 @@ export class CommandHandler {
 - /analysis <duration> - 分析射精频率，并导出为图片
 - /start - 查看帮助信息
 - /export - 导出数据
-- 发送一个 json 文件 - 导入数据`;
+- 发送一个 json 文件 - 导入数据。json 的格式必须为 \`{ time: Date; material?: string; }[]\``;
     await this.sendMessage(message.chat.id, helpText, { disable_web_page_preview: true });
   }
 
@@ -180,20 +190,20 @@ export class CommandHandler {
   }
 
   async handleImport(message: Message): Promise<void> {
-    console.log(message.document);
-    if (!message.document) {
-      await this.sendMessage(message.chat.id, "如果想要导入数据，请发送一个 JSON 文件");
-      return;
+    try {
+      if (!message.document) {
+        await this.sendMessage(message.chat.id, "如果想要导入数据，请发送一个 JSON 文件");
+        return;
+      }
+      console.log(message.document);
+
+      // 获取文件内容
+      const fileResponse = await this.getFile(message.document.file_id);
+      const importData = (await fileResponse.json()) as ImportData[];
+      const result = await this.db.importEjaculations(message.chat.id, importData);
+      await this.sendMessage(message.chat.id, result);
+    } catch (err) {
+      await this.sendMessage(message.chat.id, "导入失败：" + err);
     }
-
-    // 获取文件内容
-    const file = await this.getFile(message.document.file_id);
-    const jsonText = await file.text();
-
-    // 解析 JSON
-    const importData = JSON.parse(jsonText);
-
-    const result = await this.db.importEjaculations(message.chat.id, importData);
-    await this.sendMessage(message.chat.id, result);
   }
 }

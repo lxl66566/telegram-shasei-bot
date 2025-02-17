@@ -22,8 +22,12 @@ export default {
       // console.log(message);
 
       try {
-        if (!message?.text) {
+        if (message.document) {
           commandHandler.handleImport(message);
+          return new Response("OK");
+        }
+        if (!message.text) {
+          console.log("no text");
           return new Response("OK");
         }
         const command = message.text.split(" ")[0];

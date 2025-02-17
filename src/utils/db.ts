@@ -5,6 +5,11 @@ interface Ejaculation {
   material?: string;
 }
 
+interface ImportData {
+  time: Date;
+  material?: string;
+}
+
 class Database {
   constructor(private db: D1Database) {}
 
@@ -56,14 +61,16 @@ class Database {
     return { intervals, avgInterval, medianInterval };
   }
 
-  async importEjaculations(userId: number, data: any): Promise<string> {
+  async importEjaculations(userId: number, data: ImportData[]): Promise<string> {
     if (!Array.isArray(data)) {
-      return "导入失败：数据格式不正确";
+      return "导入失败：数据格式不是数组";
     }
+
+    console.log("imported data example", data.slice(0, 10));
 
     try {
       for (const record of data) {
-        await this.db.prepare("INSERT INTO ejaculations (user_id, timestamp, material) VALUES (?, ?, ?)").bind(userId, record.timestamp, record.material).run();
+        await this.db.prepare("INSERT INTO ejaculations (user_id, time, material) VALUES (?, ?, ?)").bind(userId, record.time, record.material).run();
       }
     } catch (error) {
       return `导入失败：${error instanceof Error ? error.message : "未知错误"}`;
@@ -72,4 +79,4 @@ class Database {
   }
 }
 
-export { Database, type Ejaculation };
+export { Database, type Ejaculation, type ImportData };

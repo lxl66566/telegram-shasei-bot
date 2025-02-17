@@ -17,7 +17,7 @@ demo: [@shasei_bot](https://t.me/shasei_bot)
 - `/analysis <duration>` - 分析射精频率，并导出为图片
 - `/start` - 查看帮助信息
 - `/export` - 导出数据
-- 发送一个 json 文件 - 导入数据
+- 发送一个 json 文件 - 导入数据。json 的格式必须为 `{ time: Date; material?: string; }[]`。
 
 ## 部署说明
 
