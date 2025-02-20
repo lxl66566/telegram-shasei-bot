@@ -31,7 +31,7 @@ class Database {
   async getTodayCount(): Promise<number> {
     const date = new Date().toISOString().substring(0, 10); // 获取 YYYY-MM-DD 部分
     const result = await this.db
-      .prepare("SELECT COUNT(*) as count FROM ejaculations WHERE time >= ? AND time < ?")
+      .prepare("SELECT COUNT(DISTINCT user_id) as count FROM ejaculations WHERE time >= ? AND time < ?")
       .bind(`${date}T00:00:00.000Z`, `${date}T23:59:59.999Z`)
       .run();
     return (result.results[0] as { count: number }).count;
