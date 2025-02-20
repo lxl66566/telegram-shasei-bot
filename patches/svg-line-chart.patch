@@ -1,0 +1,77 @@
+diff --git a/src/index.mjs b/src/index.mjs
+index d2ae50efdab76a1f557f071e59994ad31057994b..6cc262e5029b22798244d8fdba3d5078dd08d065 100644
+--- a/src/index.mjs
++++ b/src/index.mjs
+@@ -61,7 +61,8 @@ function _plot(data, options) {
+   const { x, xScaledLabels } = scaleDates(
+     offsetX,
+     options.width - PADDING.RIGHT,
+-    data.x
++    data.x,
++    options.xNumLabels
+   )
+ 
+   const y = scalePoints(PADDING.TOP, options.height - offsetY, min, max, data.y)
+@@ -271,7 +272,7 @@ export function insertInto(range, candidates) {
+   return insertedAt
+ }
+ 
+-export function scaleDates(from, to, range) {
++export function scaleDates(from, to, range, xNumLabels) {
+   range = sortRangeAsc(range)
+ 
+   const isDate = range[0] instanceof Date
+@@ -287,27 +288,32 @@ export function scaleDates(from, to, range) {
+     return pos
+   })
+ 
+-  const labels = isDate
+-    ? range
+-        .filter((d) => {
+-          // Only include the first day of each month
+-          return d.getDate() === 1
+-        })
+-        .map((d) => {
+-          const distanceFromStart = differenceInHours(d, start)
+-          const name = format(d, 'MMM yy')
+-          return {
+-            name,
+-            pos: from + distanceFromStart * pWidth,
+-          }
+-        })
+-    : range.map((d) => {
+-        const pos = from + (d - start) * pWidth
+-        return {
+-          name: d.toString(),
+-          pos,
+-        }
+-      })
++  let labels
++  if (isDate) {
++    // 计算起始时间和结束时间
++    const startDate = range[0]
++    const endDate = range[range.length - 1]
++    const totalHours = differenceInHours(endDate, startDate)
++    const hourStep = totalHours / (xNumLabels - 1)
++
++    // 生成均匀分布的时间点
++    labels = Array.from({ length: xNumLabels }, (_, i) => {
++      const currentDate = new Date(startDate.getTime() + hourStep * i * 60 * 60 * 1000)
++      return {
++        name: format(currentDate, 'yyyyMMdd'),
++        pos: from + (hourStep * i * pWidth),
++      }
++    })
++  } else {
++    // 非日期类型的处理保持不变
++    labels = range.map((d) => {
++      const pos = from + (d - start) * pWidth
++      return {
++        name: d.toString(),
++        pos,
++      }
++    })
++  }
+ 
+   return { x, xScaledLabels: labels }
+ }

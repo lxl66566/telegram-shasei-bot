@@ -1,7 +1,11 @@
 import { TelegramMessage as Message } from "@codebam/cf-workers-telegram-bot";
-import { Database, ImportData } from "./utils/db";
+import { Database, EjaculationStatsType, ImportData } from "./utils/db";
 import telegramifyMarkdown from "telegramify-markdown";
 import timespanParser from "timespan-parser";
+// @ts-ignore
+import { plot } from "svg-line-chart";
+import htm from "htm";
+import vhtml from "vhtml";
 
 export class CommandHandler {
   constructor(private db: Database, private token: string) {}
@@ -63,6 +67,67 @@ export class CommandHandler {
     return await fetch(`https://api.telegram.org/file/bot${this.token}/${data.result.file_path}`);
   }
 
+  async generateHtmlGraph({ when, intervals, avgInterval, medianInterval }: EjaculationStatsType): Promise<string> {
+    const html = htm.bind(vhtml);
+
+    const output = plot(html)(
+      { x: when, y: intervals },
+      {
+        props: {
+          style: "display:block;margin:0 auto;",
+        },
+        width: 70,
+        height: 20,
+        title: "Ejaculation Frequency stats",
+        polygon: {
+          fill: "none",
+          style: "fill:url(#polygrad);",
+          strokeWidth: 0.01,
+          stroke: "white",
+        },
+        line: {
+          fill: "none",
+          strokeWidth: 0.1,
+          stroke: "black",
+        },
+        polygonGradient: {
+          offSet1: "0%",
+          stopColor1: "#ffffff00",
+          offSet2: "100%",
+          stopColor2: "#ffffff00",
+        },
+        xAxis: {
+          strokeWidth: 0.1,
+          stroke: "black",
+        },
+        yAxis: {
+          strokeWidth: 0.1,
+          stroke: "black",
+        },
+        xLabel: {
+          fontSize: 0.6,
+          name: `avgInterval: ${avgInterval.toFixed(2)}, medianInterval: ${medianInterval.toFixed(2)}`,
+        },
+        yLabel: {
+          fontSize: 0.6,
+          name: "interval (days)",
+          locale: "en-US",
+        },
+        xGrid: {
+          strokeWidth: 0.05,
+          stroke: "lightgrey",
+        },
+        yGrid: {
+          strokeWidth: 0.05,
+          stroke: "lightgrey",
+        },
+        xNumLabels: 5,
+        yNumLabels: 5,
+      },
+    );
+    return output.toString();
+  }
+
   async handleStart(message: Message): Promise<void> {
     const userId = message.from?.id;
     if (!userId) return;
@@ -98,89 +163,14 @@ export class CommandHandler {
       await this.sendMessage(chatId, "请输入分析时间范围，遵循 systemd timespan 格式，例如：/analysis 30d");
       return;
     }
-    const duration = timespanParser.parse(args);
+    const duration = timespanParser.parse(args, "seconds");
     const stats = await this.db.getEjaculationStats(userId, duration);
-
-    // SVG 尺寸和边距设置
-    const width = 800;
-    const height = 400;
-    const margin = { top: 40, right: 30, bottom: 50, left: 50 };
-    const chartWidth = width - margin.left - margin.right;
-    const chartHeight = height - margin.top - margin.bottom;
-
-    // 计算比例尺
-    const xScale = (index: number) => margin.left + (index * chartWidth) / Math.max(stats.intervals.length - 1, 1);
-
-    const maxY = Math.max(...stats.intervals.map((i) => i / 3600), 1);
-    const yScale = (value: number) => margin.top + chartHeight - (chartHeight * (value / 3600)) / maxY;
-
-    // 生成 X 轴刻度
-    const xTicks = Array.from({ length: Math.min(10, stats.intervals.length) }, (_, i) => {
-      const step = (stats.intervals.length - 1) / Math.min(9, stats.intervals.length - 1);
-      const index = Math.round(i * step);
-      const x = xScale(index);
-      return `
-        <line x1="${x}" y1="${height - margin.bottom}" x2="${x}" y2="${height - margin.bottom + 5}" stroke="#ccc" />
-        <text x="${x}" y="${height - margin.bottom + 20}" text-anchor="middle">#${index + 1}</text>
-      `;
-    }).join("");
-
-    // 生成 Y 轴刻度
-    const yTicks = Array.from({ length: 6 }, (_, i) => {
-      const value = (maxY * i) / 5;
-      const y = yScale(value);
-      return `
-        <line x1="${margin.left - 5}" y1="${y}" x2="${margin.left}" y2="${y}" stroke="#ccc" />
-        <text x="${margin.left - 10}" y="${y}" text-anchor="end" dominant-baseline="middle">${value.toFixed(1)}h</text>
-      `;
-    }).join("");
-
-    // 生成折线路径
-    const points = stats.intervals
-      .map((interval, index) => {
-        const x = xScale(index);
-        const y = yScale(interval);
-        return `${x},${y}`;
-      })
-      .join(" ");
-
-    const avgHours = stats.avgInterval / 3600;
-    const medianHours = stats.medianInterval / 3600;
-
-    // 创建 SVG
-    const svg = `
-      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        <style>
-          text { font-family: Arial; font-size: 12px; }
-          .title { font-size: 16px; font-weight: bold; }
-          .axis { stroke: #ccc; }
-          .data-line { fill: none; stroke: rgb(75, 192, 192); stroke-width: 2; }
-        </style>
-        
-        <!-- 标题 -->
-        <text x="${width / 2}" y="25" text-anchor="middle" class="title">
-          过去 ${duration} 天的射精间隔分析
-        </text>
-
-        <!-- 坐标轴 -->
-        <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}" class="axis"/>
-        <line x1="${margin.left}" y1="${height - margin.bottom}" x2="${width - margin.right}" y2="${height - margin.bottom}" class="axis"/>
-        
-        <!-- 坐标轴刻度 -->
-        ${xTicks}
-        ${yTicks}
-        
-        <!-- 数据线 -->
-        <polyline points="${points}" class="data-line"/>
-        
-        <!-- 统计信息 -->
-        <text x="10" y="${height - 20}">平均间隔: ${avgHours.toFixed(1)} 小时</text>
-        <text x="200" y="${height - 20}">中位间隔: ${medianHours.toFixed(1)} 小时</text>
-        <text x="350" y="${height - 20}">射精次数: ${stats.intervals.length + 1} 次</text>
-      </svg>
-    `;
-
-    await this.sendTextFile(chatId, "analysis.svg", svg);
+    if (!stats.data) {
+      await this.sendMessage(chatId, "没有足够的数据来生成统计图表，至少需要 2 次");
+      return;
+    }
+    const output = await this.generateHtmlGraph(stats.data);
+    await this.sendTextFile(chatId, "analysis.html", output);
   }
 
   async handleExport(message: Message): Promise<void> {

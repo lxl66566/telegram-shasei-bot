@@ -1,3 +1,5 @@
+import { median, mean } from "simple-statistics";
+
 interface Ejaculation {
   id: number;
   user_id: number;
@@ -8,6 +10,13 @@ interface Ejaculation {
 interface ImportData {
   time: Date;
   material?: string;
+}
+
+interface EjaculationStatsType {
+  intervals: number[];
+  when: Date[];
+  avgInterval: number;
+  medianInterval: number;
 }
 
 class Database {
@@ -33,32 +42,41 @@ class Database {
     return result.results as unknown as Ejaculation[];
   }
 
+  /**
+   * 获取用户的射精统计数据。
+   * @param userId 用户ID
+   * @param duration 从当前时间往前推的时间范围，单位为秒
+   * @returns 射精统计数据，data.when 为射精时间，data.intervals 为在某时间距离上次的射精间隔（单位：天）。
+   * 统计数据包含平均间隔、中位数间隔。
+   * 统计数据从第二次射精开始计算。如果用户射精次数小于 2 次，则返回 undefined。
+   */
   async getEjaculationStats(
     userId: number,
     duration: number,
   ): Promise<{
-    intervals: number[];
-    avgInterval: number;
-    medianInterval: number;
+    data?: EjaculationStatsType;
   }> {
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - duration);
-    const cutoffTime = cutoffDate.toISOString();
+    const cutoffTime = new Date();
+    cutoffTime.setSeconds(cutoffTime.getSeconds() - duration);
 
-    const records = await this.db.prepare("SELECT time FROM ejaculations WHERE user_id = ? AND time > ? ORDER BY time ASC").bind(userId, cutoffTime).run();
+    const records = await this.db
+      .prepare("SELECT time FROM ejaculations WHERE user_id = ? AND time > ? ORDER BY time ASC")
+      .bind(userId, cutoffTime.toISOString())
+      .run();
 
-    const timestamps = records.results.map((r) => new Date(r.time as string).getTime());
-    const intervals = [];
-    for (let i = 1; i < timestamps.length; i++) {
-      intervals.push((timestamps[i] - timestamps[i - 1]) / 1000); // 转换为秒
+    const dates = records.results.map((r) => new Date(r.time as string));
+    if (dates.length < 2) {
+      return { data: undefined };
+    }
+    const intervals_days = [];
+    for (let i = 1; i < dates.length; i++) {
+      intervals_days.push((dates[i].getTime() - dates[i - 1].getTime()) / 1000 / 60 / 60 / 24);
     }
 
-    const avgInterval = intervals.length > 0 ? intervals.reduce((a, b) => a + b, 0) / intervals.length : 0;
+    const avgInterval = mean(intervals_days);
+    const medianInterval = median(intervals_days);
 
-    const sortedIntervals = [...intervals].sort((a, b) => a - b);
-    const medianInterval = intervals.length > 0 ? sortedIntervals[Math.floor(intervals.length / 2)] : 0;
-
-    return { intervals, avgInterval, medianInterval };
+    return { data: { intervals: intervals_days, when: dates.slice(1), avgInterval, medianInterval } };
   }
 
   async importEjaculations(userId: number, data: ImportData[]): Promise<string> {
@@ -79,4 +97,4 @@ class Database {
   }
 }
 
-export { Database, type Ejaculation, type ImportData };
+export { Database, type Ejaculation, type ImportData, type EjaculationStatsType };
