@@ -47,6 +47,9 @@ export default {
           case "/import":
             await commandHandler.handleImport(message);
             break;
+          case "/okazu":
+            await commandHandler.handleOkazu(message);
+            break;
         }
       } catch (error) {
         console.error("Error handling command:", error);

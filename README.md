@@ -1,19 +1,20 @@
 # Telegram shasei Bot on Cloudflare Workers
 
-一个射精记录的机器人，托管在 Cloudflare Workers 上。
+一个射精记录 bot，托管在 Cloudflare Workers 上。
 
 demo: [@shasei_bot](https://t.me/shasei_bot)
 
 ## 功能
 
 - 记录射精时间与使用的小菜
-- 分析射精频率，导出为图片
+- 分析射精频率，导出为 html 图表
 - 导入与导出数据
 
 ## 命令列表
 
 - `/biu` - 射精！
-- `/biu <material>` - 射精！并记录使用的小菜
+- `/biu <material>` - 射精！并记录（分享）使用的小菜，只能是文字
+- `/okazu` - 全局随机获取一个小菜
 - `/analysis <duration>` - 分析射精频率，并导出为 html 图表。duration 遵循 systemd timespan 格式，例如：30d, 1w, 1m, 1y。
 - `/start` - 查看帮助信息
 - `/export` - 导出数据
@@ -45,4 +46,4 @@ demo: [@shasei_bot](https://t.me/shasei_bot)
 5. 设置 Webhook
    访问 `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=<YOUR_WORKER_URL>` 设置 webhook。
    `YOUR_WORKER_URL` 在 deploy 时会给出，也可以去 Cloudflare Dashboard 查看。
-6. 将 bot 添加到群组中，在私聊中使用 `/start` 命令查看帮助，开始订阅你感兴趣的内容！
+6. 将 bot 添加到群组中，在私聊中使用 `/start` 命令查看帮助，~~开始射精~~！

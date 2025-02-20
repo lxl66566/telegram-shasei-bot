@@ -134,7 +134,8 @@ export class CommandHandler {
     const helpText = `Shasei Bot, [source code](https://github.com/lxl66566/telegram-shasei-bot)
 
 - /biu - 射精！
-- /biu <material> - 射精！并记录使用的小菜
+- /biu <material> - 射精！并记录（分享）使用的小菜，只能是文字
+- /okazu - 全局随机获取一个小菜
 - /analysis <duration> - 分析射精频率，并导出为 html 图表。duration 遵循 systemd timespan 格式，例如：30d, 1w, 1m, 1y。
 - /start - 查看帮助信息
 - /export - 导出数据
@@ -213,5 +214,14 @@ export class CommandHandler {
     } catch (err) {
       await this.sendMessage(message.chat.id, "导入失败：" + err);
     }
+  }
+
+  async handleOkazu(message: Message): Promise<void> {
+    const material = await this.db.getRandomMaterial();
+    if (!material) {
+      await this.sendMessage(message.chat.id, "没有找到小菜");
+      return;
+    }
+    await this.sendMessage(message.chat.id, `随机获取的小菜：${material}`);
   }
 }

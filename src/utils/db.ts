@@ -95,6 +95,19 @@ class Database {
       return `导入失败：${error instanceof Error ? error.message : "未知错误"}`;
     }
   }
+
+  async getRandomMaterial(): Promise<string | null> {
+    const result_count = await this.db.prepare("SELECT COUNT(*) AS count FROM ejaculations WHERE material IS NOT NULL;").run();
+    const count = (result_count.results[0] as { count: number }).count;
+    if (count === 0) {
+      return null;
+    }
+    const randomBuffer = new Uint32Array(1);
+    crypto.getRandomValues(randomBuffer);
+    const randomIndex = randomBuffer[0] % count;
+    const result = await this.db.prepare("SELECT material FROM ejaculations WHERE material IS NOT NULL LIMIT 1 OFFSET ?").bind(randomIndex).run();
+    return (result.results[0] as { material: string }).material;
+  }
 }
 
 export { Database, type Ejaculation, type ImportData, type EjaculationStatsType };
