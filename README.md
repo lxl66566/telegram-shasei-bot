@@ -4,6 +4,8 @@
 
 demo: [@shasei_bot](https://t.me/shasei_bot)
 
+本人的其他 Telegram bot：[RSS Bot](https://github.com/lxl66566/Telegram-RSS-Bot-on-Cloudflare-Workers) | [subscribe bot](https://github.com/lxl66566/telegram-subscribe-bot)
+
 ## 功能
 
 - 记录射精时间与使用的小菜

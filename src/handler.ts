@@ -131,7 +131,7 @@ export class CommandHandler {
   async handleStart(message: Message): Promise<void> {
     const userId = message.from?.id;
     if (!userId) return;
-    const helpText = `Shasei Bot, [source code](https://github.com/lxl66566/telegram-shasei-bot)
+    const helpText = `Shasei Bot, [source code](https://github.com/lxl66566/telegram-shasei-bot)。请各位绅士们友好交流，不要滥用，不要伪造战斗现场。
 
 - /biu - 射精！
 - /biu <material> - 射精！并记录（分享）使用的小菜，只能是文字

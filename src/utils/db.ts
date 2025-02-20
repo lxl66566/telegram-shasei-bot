@@ -38,7 +38,7 @@ class Database {
   }
 
   async getUserEjaculations(userId: number): Promise<Ejaculation[]> {
-    const result = await this.db.prepare("SELECT * FROM ejaculations WHERE user_id = ? ORDER BY time DESC").bind(userId).run();
+    const result = await this.db.prepare("SELECT id, time, material FROM ejaculations WHERE user_id = ? ORDER BY time DESC").bind(userId).run();
     return result.results as unknown as Ejaculation[];
   }
 
