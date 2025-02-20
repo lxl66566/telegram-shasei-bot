@@ -50,6 +50,9 @@ export default {
           case "/okazu":
             await commandHandler.handleOkazu(message);
             break;
+          case "/withdraw":
+            await commandHandler.handleWithdraw(message);
+            break;
         }
       } catch (error) {
         console.error("Error handling command:", error);

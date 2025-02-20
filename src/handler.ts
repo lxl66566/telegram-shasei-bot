@@ -136,6 +136,7 @@ export class CommandHandler {
 - /biu - 射精！
 - /biu <material> - 射精！并记录（分享）使用的小菜，只能是文字
 - /okazu - 全局随机获取一个小菜
+- /withdraw - 抱歉射错了
 - /analysis <duration> - 分析射精频率，并导出为 html 图表。duration 遵循 systemd timespan 格式，例如：30d, 1w, 1m, 1y。
 - /start - 查看帮助信息
 - /export - 导出数据
@@ -149,7 +150,7 @@ export class CommandHandler {
     await this.db.recordEjaculation(userId, args);
 
     const todayCount = await this.db.getTodayCount();
-    let response = `🎉 射精成功！你是今天第 ${todayCount} 个射精的人！`;
+    let response = `biu! 🍌🎉 你是今天（UTC+0）第 ${todayCount} 个射精的人！`;
     if (args) {
       response += `\n使用小菜：${args}`;
     }
@@ -223,5 +224,11 @@ export class CommandHandler {
       return;
     }
     await this.sendMessage(message.chat.id, `随机获取的小菜：${material}`);
+  }
+
+  async handleWithdraw(message: Message): Promise<void> {
+    const userId = message.from.id;
+    await this.db.withdrawEjaculation(userId);
+    await this.sendMessage(message.chat.id, "勉为其难帮你撤回吧，杂鱼♥~");
   }
 }

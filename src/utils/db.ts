@@ -108,6 +108,10 @@ class Database {
     const result = await this.db.prepare("SELECT material FROM ejaculations WHERE material IS NOT NULL LIMIT 1 OFFSET ?").bind(randomIndex).run();
     return (result.results[0] as { material: string }).material;
   }
+
+  async withdrawEjaculation(userId: number): Promise<void> {
+    await this.db.prepare("DELETE FROM ejaculations WHERE id = (SELECT id FROM ejaculations WHERE user_id = ? ORDER BY time DESC LIMIT 1)").bind(userId).run();
+  }
 }
 
 export { Database, type Ejaculation, type ImportData, type EjaculationStatsType };
