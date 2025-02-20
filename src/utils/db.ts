@@ -87,13 +87,13 @@ class Database {
     console.log("imported data example", data.slice(0, 10));
 
     try {
-      for (const record of data) {
-        await this.db.prepare("INSERT INTO ejaculations (user_id, time, material) VALUES (?, ?, ?)").bind(userId, record.time, record.material).run();
-      }
+      const p = this.db.prepare("INSERT INTO ejaculations (user_id, time, material) VALUES (?, ?, ?)");
+      await this.db.batch(data.map((record) => p.bind(userId, record.time, record.material ?? null)));
+      console.log("imported data success, length: ", data.length);
+      return `${data.length} 条数据导入成功`;
     } catch (error) {
       return `导入失败：${error instanceof Error ? error.message : "未知错误"}`;
     }
-    return "导入成功！";
   }
 }
 

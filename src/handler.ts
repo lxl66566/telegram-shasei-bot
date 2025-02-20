@@ -135,10 +135,10 @@ export class CommandHandler {
 
 - /biu - 射精！
 - /biu <material> - 射精！并记录使用的小菜
-- /analysis <duration> - 分析射精频率，并导出为图片
+- /analysis <duration> - 分析射精频率，并导出为 html 图表。duration 遵循 systemd timespan 格式，例如：30d, 1w, 1m, 1y。
 - /start - 查看帮助信息
 - /export - 导出数据
-- 发送一个 json 文件 - 导入数据。json 的格式必须为 \`{ time: Date; material?: string; }[]\``;
+- /import <json file url> - 导入数据。json 的格式必须为 \`{ time: Date; material?: string; }[]\``;
     await this.sendMessage(message.chat.id, helpText, { disable_web_page_preview: true });
   }
 
@@ -179,17 +179,35 @@ export class CommandHandler {
     await this.sendJsonDocument(chatId, data);
   }
 
+  // 这是发送 Json 文件导入数据的代码，但是遇到了 bug：https://t.me/withabsolutex/2241，所以我更换了导入方式
+  // async handleImport(message: Message): Promise<void> {
+  //   try {
+  //     if (!message.document) {
+  //       await this.sendMessage(message.chat.id, "如果想要导入数据，请发送一个 JSON 文件");
+  //       return;
+  //     }
+  //     console.log(message.document);
+
+  //     // 获取文件内容
+  //     const fileResponse = await this.getFile(message.document.file_id);
+  //     const importData = (await fileResponse.json()) as ImportData[];
+  //     const result = await this.db.importEjaculations(message.chat.id, importData);
+  //     await this.sendMessage(message.chat.id, result);
+  //   } catch (err) {
+  //     await this.sendMessage(message.chat.id, "导入失败：" + err);
+  //   }
+  // }
+
   async handleImport(message: Message): Promise<void> {
     try {
-      if (!message.document) {
-        await this.sendMessage(message.chat.id, "如果想要导入数据，请发送一个 JSON 文件");
-        return;
+      const args = message.text?.split(" ");
+      if (!args || args.length < 2) {
+        throw new Error("请输入导入数据，遵循以下格式：/import <json file url>");
       }
-      console.log(message.document);
-
-      // 获取文件内容
-      const fileResponse = await this.getFile(message.document.file_id);
+      const jsonFileUrl = args[1];
+      const fileResponse = await fetch(jsonFileUrl);
       const importData = (await fileResponse.json()) as ImportData[];
+      await this.sendMessage(message.chat.id, "数据导入中...若未返回结果，请尝试导出数据以查看导入进度，避免中间状态导致数据重复");
       const result = await this.db.importEjaculations(message.chat.id, importData);
       await this.sendMessage(message.chat.id, result);
     } catch (err) {
