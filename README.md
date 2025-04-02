@@ -16,7 +16,7 @@ demo: [@shasei_bot](https://t.me/shasei_bot)
 
 - `/biu` - 射精！
 - `/biu <material>` - 射精！并记录（分享）使用的小菜，只能是文字
-- `/okazu` - 全局随机获取一个小菜
+- `/okazu [n]` - 全局随机获取 n 个小菜，默认为 1
 - `/withdraw` - 抱歉射错了
 - `/analysis <duration>` - 分析射精频率，并导出为 html 图表。duration 遵循 systemd timespan 格式，例如：30d, 1w, 1m, 1y。
 - `/start` - 查看帮助信息

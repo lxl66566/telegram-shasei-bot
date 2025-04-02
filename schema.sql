@@ -12,5 +12,8 @@ CREATE INDEX IF NOT EXISTS idx_ejaculations_user_id ON ejaculations (user_id);
 -- 创建时间索引，用于按时间顺序查询和统计
 CREATE INDEX IF NOT EXISTS idx_ejaculations_time ON ejaculations (time);
 
+-- 创建用户ID与时间的联合索引
+CREATE INDEX IF NOT EXISTS idx_ejaculations_user_time ON ejaculations (user_id, time);
+
 -- 创建小菜索引，用于获取随机小菜
 CREATE INDEX idx_ejaculations_material ON ejaculations (material);

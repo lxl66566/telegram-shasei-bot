@@ -80,17 +80,15 @@ class Database {
     }
   }
 
-  async getRandomMaterial(): Promise<string | null> {
-    const result_count = await this.db.prepare("SELECT COUNT(*) AS count FROM ejaculations WHERE material IS NOT NULL;").run();
-    const count = (result_count.results[0] as { count: number }).count;
-    if (count === 0) {
+  async getRandomNMaterial(n: number): Promise<string[] | null> {
+    // 直接随机选择一行，无需先 COUNT
+    const result = await this.db.prepare("SELECT material FROM ejaculations WHERE material IS NOT NULL ORDER BY RANDOM() LIMIT ?").bind(n).run();
+    // 检查是否真的有结果返回（以防万一表完全为空或只有 null material）
+    if (result.results && result.results.length > 0) {
+      return result.results.map((r) => (r as { material: string }).material);
+    } else {
       return null;
     }
-    const randomBuffer = new Uint32Array(1);
-    crypto.getRandomValues(randomBuffer);
-    const randomIndex = randomBuffer[0] % count;
-    const result = await this.db.prepare("SELECT material FROM ejaculations WHERE material IS NOT NULL LIMIT 1 OFFSET ?").bind(randomIndex).run();
-    return (result.results[0] as { material: string }).material;
   }
 
   async withdrawEjaculation(userId: number): Promise<void> {

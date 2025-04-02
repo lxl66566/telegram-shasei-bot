@@ -72,7 +72,7 @@ export class CommandHandler {
 
 - /biu - 射精！
 - /biu <material> - 射精！并记录（分享）使用的小菜，只能是文字
-- /okazu - 全局随机获取一个小菜
+- /okazu [n] - 全局随机获取 n 个小菜，默认为 1
 - /withdraw - 抱歉射错了
 - /analysis <duration> - 分析射精频率，并导出为 html 图表。duration 遵循 systemd timespan 格式，例如：30d, 1w, 1m, 1y。
 - /start - 查看帮助信息
@@ -83,8 +83,8 @@ export class CommandHandler {
 
   async handleBiu(message: Message): Promise<void> {
     const userId = message.from.id;
-    const args = message.text?.split(" ").slice(1).join(" ").trim();
-    await this.db.recordEjaculation(userId, args);
+    const args = message.text?.trim().split(" ").slice(1).join(" ");
+    await this.db.recordEjaculation(userId, args || undefined);
 
     const todayCount = await this.db.getTodayCount();
     let response = `biu! 🍌🎉 你是今天（UTC+0）第 ${todayCount} 个射精的人！`;
@@ -155,12 +155,17 @@ export class CommandHandler {
   }
 
   async handleOkazu(message: Message): Promise<void> {
-    const material = await this.db.getRandomMaterial();
-    if (!material) {
-      await this.sendMessage(message.chat.id, "没有找到小菜");
-      return;
+    const arg1 = message.text?.trim().split(" ") || [];
+    try {
+      const n = arg1.length >= 2 ? parseInt(arg1[1]) : 1;
+      const materials = await this.db.getRandomNMaterial(n);
+      if (!materials || materials.length === 0) {
+        throw new Error("没有找到小菜");
+      }
+      await this.sendMessage(message.chat.id, `随机获取的小菜：\n${materials.join("\n")}`);
+    } catch (err) {
+      await this.sendMessage(message.chat.id, err instanceof Error ? err.message : "未知错误");
     }
-    await this.sendMessage(message.chat.id, `随机获取的小菜：${material}`);
   }
 
   async handleWithdraw(message: Message): Promise<void> {
