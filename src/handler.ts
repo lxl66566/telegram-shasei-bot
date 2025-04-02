@@ -1,11 +1,9 @@
 import { TelegramMessage as Message } from "@codebam/cf-workers-telegram-bot";
-import { Database, EjaculationStatsType, ImportData } from "./utils/db";
+import { Database, ImportData } from "./utils/db";
 import telegramifyMarkdown from "telegramify-markdown";
 import timespanParser from "timespan-parser";
 // @ts-ignore
-import { plot } from "svg-line-chart";
-import htm from "htm";
-import vhtml from "vhtml";
+import { createChart } from "./utils/chart";
 
 export class CommandHandler {
   constructor(private db: Database, private token: string) {}
@@ -67,67 +65,6 @@ export class CommandHandler {
     return await fetch(`https://api.telegram.org/file/bot${this.token}/${data.result.file_path}`);
   }
 
-  async generateHtmlGraph({ when, intervals, avgInterval, medianInterval }: EjaculationStatsType): Promise<string> {
-    const html = htm.bind(vhtml);
-
-    const output = plot(html)(
-      { x: when, y: intervals },
-      {
-        props: {
-          style: "display:block;margin:0 auto;",
-        },
-        width: 70,
-        height: 20,
-        title: "Ejaculation Frequency stats",
-        polygon: {
-          fill: "none",
-          style: "fill:url(#polygrad);",
-          strokeWidth: 0.01,
-          stroke: "white",
-        },
-        line: {
-          fill: "none",
-          strokeWidth: 0.1,
-          stroke: "black",
-        },
-        polygonGradient: {
-          offSet1: "0%",
-          stopColor1: "#ffffff00",
-          offSet2: "100%",
-          stopColor2: "#ffffff00",
-        },
-        xAxis: {
-          strokeWidth: 0.1,
-          stroke: "black",
-        },
-        yAxis: {
-          strokeWidth: 0.1,
-          stroke: "black",
-        },
-        xLabel: {
-          fontSize: 0.6,
-          name: `avgInterval: ${avgInterval.toFixed(2)}, medianInterval: ${medianInterval.toFixed(2)}`,
-        },
-        yLabel: {
-          fontSize: 0.6,
-          name: "interval (days)",
-          locale: "en-US",
-        },
-        xGrid: {
-          strokeWidth: 0.05,
-          stroke: "lightgrey",
-        },
-        yGrid: {
-          strokeWidth: 0.05,
-          stroke: "lightgrey",
-        },
-        xNumLabels: 5,
-        yNumLabels: 5,
-      },
-    );
-    return output.toString();
-  }
-
   async handleStart(message: Message): Promise<void> {
     const userId = message.from?.id;
     if (!userId) return;
@@ -168,10 +105,10 @@ export class CommandHandler {
     const duration = timespanParser.parse(args, "seconds");
     const stats = await this.db.getEjaculationStats(userId, duration);
     if (!stats.data) {
-      await this.sendMessage(chatId, "没有足够的数据来生成统计图表，至少需要 2 次");
+      await this.sendMessage(chatId, "没有足够的数据来生成统计图表");
       return;
     }
-    const output = await this.generateHtmlGraph(stats.data);
+    const output = createChart(stats.data);
     await this.sendTextFile(chatId, "analysis.html", output);
   }
 

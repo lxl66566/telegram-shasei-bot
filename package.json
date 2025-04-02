@@ -9,29 +9,20 @@
     "cf-typegen": "wrangler types"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241112.0",
+    "@cloudflare/workers-types": "^4.20250321.0",
     "@types/timespan-parser": "^1.2.3",
     "@types/vhtml": "^2.2.9",
     "typescript": "^5.5.2",
     "vitest": "^3.0.5",
-    "wrangler": "^3.60.3"
+    "wrangler": "^4.6.0"
   },
   "dependencies": {
-    "@codebam/cf-workers-telegram-bot": "^8.1.1",
-    "htm": "^3.1.1",
-    "simple-statistics": "^7.8.7",
-    "svg-line-chart": "0.4.1",
+    "@codebam/cf-workers-telegram-bot": "^9.1.1",
     "telegramify-markdown": "^1.2.2",
-    "timespan-parser": "^1.2.0",
-    "vhtml": "^2.2.0"
+    "timespan-parser": "^1.2.0"
   },
   "overrides": {
     "is-core-module": "npm:@nolyfill/is-core-module@^1"
   },
-  "packageManager": "pnpm@9.15.2+sha512.93e57b0126f0df74ce6bff29680394c0ba54ec47246b9cf321f0121d8d9bb03f750a705f24edc3c1180853afd7c2c3b94196d0a3d53d3e069d9e2793ef11f321",
-  "pnpm": {
-    "patchedDependencies": {
-      "svg-line-chart": "patches/svg-line-chart.patch"
-    }
-  }
+  "packageManager": "pnpm@9.15.2+sha512.93e57b0126f0df74ce6bff29680394c0ba54ec47246b9cf321f0121d8d9bb03f750a705f24edc3c1180853afd7c2c3b94196d0a3d53d3e069d9e2793ef11f321"
 }

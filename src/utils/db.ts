@@ -1,5 +1,3 @@
-import { median, mean } from "simple-statistics";
-
 interface Ejaculation {
   id: number;
   user_id: number;
@@ -12,11 +10,9 @@ interface ImportData {
   material?: string;
 }
 
-interface EjaculationStatsType {
-  intervals: number[];
-  when: Date[];
-  avgInterval: number;
-  medianInterval: number;
+interface EjaculationStatsItemType {
+  time: string;
+  material?: string;
 }
 
 class Database {
@@ -54,29 +50,17 @@ class Database {
     userId: number,
     duration: number,
   ): Promise<{
-    data?: EjaculationStatsType;
+    data?: EjaculationStatsItemType[];
   }> {
     const cutoffTime = new Date();
     cutoffTime.setSeconds(cutoffTime.getSeconds() - duration);
 
     const records = await this.db
-      .prepare("SELECT time FROM ejaculations WHERE user_id = ? AND time > ? ORDER BY time ASC")
+      .prepare("SELECT time, material FROM ejaculations WHERE user_id = ? AND time > ? ORDER BY time ASC")
       .bind(userId, cutoffTime.toISOString())
       .run();
 
-    const dates = records.results.map((r) => new Date(r.time as string));
-    if (dates.length < 2) {
-      return { data: undefined };
-    }
-    const intervals_days = [];
-    for (let i = 1; i < dates.length; i++) {
-      intervals_days.push((dates[i].getTime() - dates[i - 1].getTime()) / 1000 / 60 / 60 / 24);
-    }
-
-    const avgInterval = mean(intervals_days);
-    const medianInterval = median(intervals_days);
-
-    return { data: { intervals: intervals_days, when: dates.slice(1), avgInterval, medianInterval } };
+    return { data: records.results.map((r) => ({ time: r.time as string, material: r.material as string | undefined })) };
   }
 
   async importEjaculations(userId: number, data: ImportData[]): Promise<string> {
@@ -114,4 +98,4 @@ class Database {
   }
 }
 
-export { Database, type Ejaculation, type ImportData, type EjaculationStatsType };
+export { Database, type Ejaculation, type ImportData, type EjaculationStatsItemType as EjaculationStatsType };
