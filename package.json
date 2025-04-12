@@ -1,6 +1,6 @@
 {
   "name": "telegram-shasei-bot",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "scripts": {
     "deploy": "wrangler deploy",
     "token": "wrangler secret put TELEGRAM_BOT_TOKEN",

@@ -3,6 +3,7 @@ export function createChart(data: any) {
   return `<script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/timeline.js"></script>
 
+<div id="scatter-container"></div>
 <div id="container"></div>
 
 <script>
@@ -19,19 +20,26 @@ export function createChart(data: any) {
         minInterval: 0,
         maxInterval: 0,
         avgInterval: 0,
+        intervals: [],
       };
     }
 
     const intervals = [];
     for (let i = 1; i < sortedData.length; i++) {
       const interval = sortedData[i].time - sortedData[i - 1].time;
-      intervals.push(interval);
+      intervals.push({
+        x: sortedData[i].time.getTime(),
+        y: interval / (1000 * 60 * 60), // 转换为小时
+        prev: sortedData[i - 1].time,
+        curr: sortedData[i].time,
+      });
     }
 
     return {
-      minInterval: Math.min(...intervals),
-      maxInterval: Math.max(...intervals),
-      avgInterval: intervals.reduce((a, b) => a + b, 0) / intervals.length,
+      minInterval: Math.min(...intervals.map((i) => i.y)),
+      maxInterval: Math.max(...intervals.map((i) => i.y)),
+      avgInterval: intervals.reduce((a, b) => a + b.y, 0) / intervals.length,
+      intervals: intervals,
     };
   }
 
@@ -48,7 +56,44 @@ export function createChart(data: any) {
 
   // 计算间隔统计
   const intervalStats = calculateIntervals(mappedData);
-  
+  console.log("间隔统计（小时）:", intervalStats);
+
+  // 创建散点图
+  Highcharts.chart("scatter-container", {
+    chart: {
+      type: "scatter",
+      height: 400,
+    },
+    title: {
+      text: "射精时间间隔分布",
+    },
+    xAxis: {
+      type: "datetime",
+      title: {
+        text: "时间",
+      },
+    },
+    yAxis: {
+      title: {
+        text: "间隔（小时）",
+      },
+    },
+    tooltip: {
+      formatter: function () {
+        return \`<b>间隔：\${this.y.toFixed(2)} 小时</b><br/>
+                上次：\${Highcharts.dateFormat("%Y-%m-%d %H:%M:%S", this.point.prev)}<br/>
+                本次：\${Highcharts.dateFormat("%Y-%m-%d %H:%M:%S", this.point.curr)}\`;
+      },
+    },
+    series: [
+      {
+        name: "时间间隔",
+        data: intervalStats.intervals,
+        color: "#7cb5ec",
+      },
+    ],
+  });
+
   const data = mappedData.map((item) => {
     // 获取本地时区偏移量（毫秒）
     const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
@@ -143,5 +188,6 @@ export function createChart(data: any) {
     pointer-events: auto !important;
   }
 </style>
+
 `;
 }
