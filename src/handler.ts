@@ -4,6 +4,7 @@ import telegramifyMarkdown from "telegramify-markdown";
 import timespanParser from "timespan-parser";
 // @ts-ignore
 import { createChart } from "./utils/chart";
+import { decodeUrlsInText } from "./utils";
 
 export class CommandHandler {
   constructor(private db: Database, private token: string) {}
@@ -83,7 +84,9 @@ export class CommandHandler {
 
   async handleBiu(message: Message): Promise<void> {
     const userId = message.from.id;
-    const args = message.text?.trim().split(" ").slice(1).join(" ");
+    let args = message.text?.trim().split(" ").slice(1).join(" ");
+    args = decodeUrlsInText(args);
+
     await this.db.recordEjaculation(userId, args || undefined);
 
     const todayCount = await this.db.getTodayCount();
