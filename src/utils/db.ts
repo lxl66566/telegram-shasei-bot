@@ -20,7 +20,10 @@ class Database {
 
   async recordEjaculation(userId: number, material?: string): Promise<number> {
     const time = new Date().toISOString();
-    const result = await this.db.prepare("INSERT INTO ejaculations (user_id, time, material) VALUES (?, ?, ?) RETURNING id").bind(userId, time, material).run();
+    const result = await this.db
+      .prepare("INSERT INTO ejaculations (user_id, time, material) VALUES (?, ?, ?) RETURNING id")
+      .bind(userId, time, material ?? null)
+      .run();
     return (result.results[0] as { id: number }).id;
   }
 
