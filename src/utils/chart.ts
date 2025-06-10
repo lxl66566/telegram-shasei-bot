@@ -43,7 +43,7 @@ export function createChart(data: any) {
     };
   }
 
-  const mappedData = JSON.parse(\`${JSON.stringify(data)}\`)
+  const mappedData = JSON.parse(String.raw\`${JSON.stringify(data)}\`)
     .map((item) => {
       return {
         time: new Date(item.time),
