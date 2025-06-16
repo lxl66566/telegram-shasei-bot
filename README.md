@@ -1,6 +1,6 @@
 # Telegram shasei Bot on Cloudflare Workers
 
-一个射精记录 bot，托管在 Cloudflare Workers 上。
+一个射精记录 bot，托管在 Cloudflare Workers 上，稳定安全无需服务器。
 
 demo: [@shasei_bot](https://t.me/shasei_bot)
 
@@ -18,7 +18,7 @@ demo: [@shasei_bot](https://t.me/shasei_bot)
 - `/biu <material>` - 射精！并记录（分享）使用的小菜，只能是文字
 - `/okazu [n]` - 全局随机获取 n 个小菜，默认为 1
 - `/withdraw` - 抱歉射错了
-- `/analysis <duration>` - 分析射精频率，并导出为 html 图表。duration 遵循 systemd timespan 格式，例如：30d, 1w, 1m, 1y。
+- `/analysis <duration>` - 分析射精频率，并导出为 html 图表。duration 遵循 systemd timespan 格式，例如：2d, 1w, 1month, 1y。
 - `/start` - 查看帮助信息
 - `/export` - 导出数据
 - `/import <json file url>` - 导入数据。json 的格式必须为 `{ time: string of Date; material?: string; }[]`
