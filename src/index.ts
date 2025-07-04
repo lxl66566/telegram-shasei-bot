@@ -30,7 +30,7 @@ export default {
           console.log("no text");
           return new Response("OK");
         }
-        const command = message.text.split(" ")[0];
+        const command = message.text.trim().split(/\s/)[0];
         switch (command) {
           case "/start":
             await commandHandler.handleStart(message);

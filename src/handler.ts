@@ -84,7 +84,7 @@ export class CommandHandler {
 
   async handleBiu(message: Message): Promise<void> {
     const userId = message.from.id;
-    let args = message.text?.trim().split(" ").slice(1).join(" ");
+    let args: string = message.text?.trim().replace(/^\/biu\s*/, "");
     args = decodeUrlsInText(args);
 
     await this.db.recordEjaculation(userId, args || undefined);
@@ -100,7 +100,7 @@ export class CommandHandler {
   async handleAnalysis(message: Message): Promise<void> {
     const userId = message.from.id;
     const chatId = message.chat.id;
-    const args = message.text?.split(" ").slice(1).join(" ").trim();
+    const args: string = message.text?.trim().replace(/^\/analysis\s*/, "");
     if (!args) {
       await this.sendMessage(chatId, "请输入分析时间范围，遵循 systemd timespan 格式，例如：/analysis 30d");
       return;
