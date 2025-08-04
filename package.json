@@ -12,7 +12,7 @@
     "@cloudflare/workers-types": "^4.20250726.0",
     "@types/timespan-parser": "^1.2.3",
     "@types/vhtml": "^2.2.9",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.2",
     "vitest": "^3.2.4",
     "wrangler": "^4.26.1"
   },
