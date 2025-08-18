@@ -14,7 +14,7 @@
     "@types/vhtml": "^2.2.9",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4",
-    "wrangler": "^4.28.1"
+    "wrangler": "^4.29.0"
   },
   "dependencies": {
     "@codebam/cf-workers-telegram-bot": "^9.1.3",
