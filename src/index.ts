@@ -53,6 +53,9 @@ export default {
           case "/withdraw":
             await commandHandler.handleWithdraw(message);
             break;
+          case "/modifylasttime":
+            await commandHandler.handleModifyLastTime(message);
+            break;
         }
       } catch (error) {
         console.error("Error handling command:", error);

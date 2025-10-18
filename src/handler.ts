@@ -76,6 +76,7 @@ export class CommandHandler {
 - /okazu [n] - 全局随机获取 n 个小菜，默认为 1
 - /withdraw - 抱歉射错了
 - /analysis <duration> - 分析射精频率，并导出为 html 图表。duration 遵循 systemd timespan 格式，例如：30d, 1w, 1m, 1y。
+- /modifylasttime <duration> - 修改上一次射精的时间。duration 遵循 systemd timespan 格式，例如：+1d, -2h。
 - /start - 查看帮助信息
 - /export - 导出数据
 - /import <json file url> - 导入数据。json 的格式必须为 \`{ time: string of Date; material?: string; }[]\``;
@@ -175,5 +176,30 @@ export class CommandHandler {
     const userId = message.from.id;
     await this.db.withdrawEjaculation(userId);
     await this.sendMessage(message.chat.id, "勉为其难帮你撤回吧，杂鱼♥~");
+  }
+
+  async handleModifyLastTime(message: Message): Promise<void> {
+    const userId = message.from.id;
+    const chatId = message.chat.id;
+
+    const arg1 = message.text?.trim().split(" ") || [];
+    if (arg1.length < 2) {
+      await this.sendMessage(chatId, "请提供时间调整量, 例如: `/modifylasttime +1d` 或 `/modifylasttime -2h`");
+      return;
+    }
+
+    try {
+      const timeOffsetInMillis = timespanParser.parse(arg1[1], "ms");
+      const result = await this.db.modifyLastEjaculationTime(userId, timeOffsetInMillis);
+
+      if (result.success && result.oldTime && result.newTime) {
+        await this.sendMessage(chatId, `修改成功：${result.oldTime.toISOString()} -> ${result.newTime.toISOString()} (UTC+0)`);
+      } else {
+        await this.sendMessage(chatId, "没有找到可以修改的记录。");
+      }
+    } catch (error) {
+      console.error("Error modifying last time:", error);
+      await this.sendMessage(chatId, "无法解析时间格式或修改时出错：" + error);
+    }
   }
 }

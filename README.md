@@ -22,6 +22,7 @@ demo: [@shasei_bot](https://t.me/shasei_bot)
 - `/start` - 查看帮助信息
 - `/export` - 导出数据
 - `/import <json file url>` - 导入数据。json 的格式必须为 `{ time: string of Date; material?: string; }[]`
+- `/modifylasttime <duration>` - 修改上一次射精的时间。duration 遵循 systemd timespan 格式，例如：+1d, -2h。注意：修改后，上一次射精指向的条目可能发生改变，因此 `/modifylasttime +1d` `/modifylasttime -1d` 不是对偶的。
 
 ## 部署说明
 

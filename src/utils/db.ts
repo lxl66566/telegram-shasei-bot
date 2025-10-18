@@ -97,6 +97,27 @@ class Database {
   async withdrawEjaculation(userId: number): Promise<void> {
     await this.db.prepare("DELETE FROM ejaculations WHERE id = (SELECT id FROM ejaculations WHERE user_id = ? ORDER BY time DESC LIMIT 1)").bind(userId).run();
   }
+
+  async modifyLastEjaculationTime(userId: number, timeOffsetInMillis: number): Promise<{ success: boolean; oldTime?: Date; newTime?: Date }> {
+    const lastRecord = await this.db
+      .prepare("SELECT id, time FROM ejaculations WHERE user_id = ? ORDER BY time DESC LIMIT 1")
+      .bind(userId)
+      .first<{ id: number; time: string }>();
+
+    if (!lastRecord) {
+      return { success: false };
+    }
+
+    // 计算新的时间
+    const originalTime = new Date(lastRecord.time);
+    const newTime = new Date(originalTime.getTime() + timeOffsetInMillis);
+    const newTimeISO = newTime.toISOString();
+
+    // 4. 更新数据库中的记录
+    await this.db.prepare("UPDATE ejaculations SET time = ? WHERE id = ?").bind(newTimeISO, lastRecord.id).run();
+
+    return { success: true, oldTime: originalTime, newTime };
+  }
 }
 
 export { Database, type Ejaculation, type ImportData, type EjaculationStatsItemType as EjaculationStatsType };
