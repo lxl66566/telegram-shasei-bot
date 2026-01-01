@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@codebam/cf-workers-telegram-bot": "^9.1.3",
-    "telegramify-markdown": "^1.3.0",
+    "telegramify-markdown": "^1.3.2",
     "timespan-parser": "^1.2.0"
   },
   "overrides": {
