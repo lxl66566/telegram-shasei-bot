@@ -12,8 +12,8 @@ importers:
         specifier: ^9.1.3
         version: 9.1.3
       telegramify-markdown:
-        specifier: ^1.3.0
-        version: 1.3.0
+        specifier: ^1.3.2
+        version: 1.3.2
       timespan-parser:
         specifier: ^1.2.0
         version: 1.2.0
@@ -761,6 +761,15 @@ packages:
       supports-color:
         optional: true
 
+  debug@4.4.3:
+    resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
   deep-eql@5.0.2:
     resolution: {integrity: sha512-h5k/5U50IJJFpzfL6nO9jaaumfjO/f2NjK/oYB2Djzm4p9L+3T9qWpZqZ2hAbLPuuYq9wrU08WQyBTL5GbPk5Q==}
     engines: {node: '>=6'}
@@ -1021,8 +1030,8 @@ packages:
     resolution: {integrity: sha512-5eG9FQjEjDbAlI5+kdpdyPIBMRH4GfTVDGREVupaZHmVoppknhM29b/S9BkQz7cathp85BVgRi/As3Siln7e0Q==}
     engines: {node: '>=18'}
 
-  telegramify-markdown@1.3.0:
-    resolution: {integrity: sha512-Qz2YCEc/1DBt2123bn4OSLANUchpGeTJ/3EyFzIeooGFUL4n+DcTP/4u1DZ0oBpgzQX5NdRHys20T8AJcEEGIA==}
+  telegramify-markdown@1.3.2:
+    resolution: {integrity: sha512-otv/SSjJD4MQGBYcRqkSchs84nYBYQoE2BqplQTIoIMN4nT0tDZgxbU5yjdBLkNxaQfkzYja27Hl/hcVJwewcg==}
 
   timespan-parser@1.2.0:
     resolution: {integrity: sha512-IJ7UE1VONoh60AaYUyXJu9yP+grOYFOek4RE7IOjHdmjnVSoxDEDGP7ZuLIMfy1aCJyVwU7vHASKSXdTC/hy3g==}
@@ -1699,6 +1708,10 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
+  debug@4.4.3:
+    dependencies:
+      ms: 2.1.3
+
   deep-eql@5.0.2: {}
 
   defu@6.1.4: {}
@@ -1921,7 +1934,7 @@ snapshots:
 
   micromark@2.11.4:
     dependencies:
-      debug: 4.4.1
+      debug: 4.4.3
       parse-entities: 2.0.0
     transitivePeerDependencies:
       - supports-color
@@ -2075,7 +2088,7 @@ snapshots:
 
   supports-color@10.2.0: {}
 
-  telegramify-markdown@1.3.0:
+  telegramify-markdown@1.3.2:
     dependencies:
       mdast-util-gfm-table: 0.1.6
       mdast-util-to-markdown: 0.6.5
