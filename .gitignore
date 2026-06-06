@@ -171,6 +171,10 @@ dist
 .dev.vars
 .wrangler/
 
+# generated at build time by scripts/generate-assets.mjs
+
+src/generated/
+
 # me
 
 test*.*

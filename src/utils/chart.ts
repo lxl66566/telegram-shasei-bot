@@ -1,9 +1,14 @@
 /// 根据数据导出 html 图表
-export function createChart(data: any) {
-  return `<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/timeline.js"></script>
+import { highchartsJs, timelineJs } from "../generated/assets";
 
-<div id="scatter-container"></div>
+export function createChart(data: any) {
+  return (
+    "<script>" +
+    highchartsJs +
+    "</script>\n<script>" +
+    timelineJs +
+    "</script>\n\n" +
+    `<div id="scatter-container"></div>
 <div id="container"></div>
 
 <script>
@@ -189,5 +194,6 @@ export function createChart(data: any) {
   }
 </style>
 
-`;
+`
+  );
 }
