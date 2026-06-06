@@ -149,9 +149,7 @@ export function createChart(data: any) {
       text: "射精时间线",
     },
     tooltip: {
-      style: {
-        width: 300,
-      },
+      enabled: false,
     },
     series: [
       {
