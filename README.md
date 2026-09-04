@@ -37,17 +37,24 @@ demo: [@shasei_bot](https://t.me/shasei_bot)
 3. 安装项目依赖
    ```sh
    pnpm i
-   pnpm i wrangler -g
    ```
 4. 部署项目
    ```sh
-   wrangler d1 create telegram_shasei_bot                                  # 创建 d1 数据库
+   pnpm db:create  # 创建 d1 数据库
    # 然后将返回的 d1 database 信息填入 wrangler.toml 的 [[d1_databases]] 中
-   wrangler d1 execute telegram_shasei_bot --file=./schema.sql --remote    # 创建数据表
-   wrangler deploy                                                         # 部署项目
-   wrangler secret put TELEGRAM_BOT_TOKEN                                  # 设置 bot token
+   pnpm db:init    # 创建数据表
+   pnpm deploy     # 部署项目
+   pnpm token      # 设置 bot token
    ```
 5. 设置 Webhook
    访问 `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=<YOUR_WORKER_URL>` 设置 webhook。
    `YOUR_WORKER_URL` 在 deploy 时会给出，也可以去 Cloudflare Dashboard 查看。
 6. 将 bot 添加到群组中，在私聊中使用 `/start` 命令查看帮助，~~开始射精~~！
+
+## 后续维护
+
+修改代码后重新部署只需一条命令：
+
+```sh
+pnpm deploy
+```

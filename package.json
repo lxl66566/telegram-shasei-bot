@@ -4,6 +4,8 @@
   "scripts": {
     "deploy": "wrangler deploy",
     "token": "wrangler secret put TELEGRAM_BOT_TOKEN",
+    "db:create": "wrangler d1 create telegram_shasei_bot",
+    "db:init": "wrangler d1 execute telegram_shasei_bot --file=./schema.sql --remote",
     "dev": "wrangler dev",
     "test": "node scripts/generate-assets.mjs && vitest",
     "cf-typegen": "wrangler types"
@@ -12,8 +14,8 @@
     "@cloudflare/workers-types": "^4.20260101.0",
     "@types/timespan-parser": "^1.2.3",
     "@types/vhtml": "^2.2.9",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.16",
+    "typescript": "^7.0.2",
+    "vitest": "^5",
     "wrangler": "^4.54.0"
   },
   "dependencies": {
@@ -24,5 +26,5 @@
   "overrides": {
     "is-core-module": "npm:@nolyfill/is-core-module@^1"
   },
-  "packageManager": "pnpm@9.15.2+sha512.93e57b0126f0df74ce6bff29680394c0ba54ec47246b9cf321f0121d8d9bb03f750a705f24edc3c1180853afd7c2c3b94196d0a3d53d3e069d9e2793ef11f321"
+  "packageManager": "pnpm@11.25.0+sha512.5cde925b4f075f725eb71fbae18a42ffe784524789f19b61c731cb8721ec28aaee160e01a8d5af4fedb2a42cdbf300efe23db356b0d4a17b4d63e11f8ab7c956"
 }

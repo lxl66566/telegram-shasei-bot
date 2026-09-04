@@ -2,8 +2,6 @@
 
 一个射精记录 bot，托管在 Cloudflare Workers 上。
 
-demo: [@shasei_bot](https://t.me/shasei_bot)
-
 ## 功能
 
 - 记录射精时间与使用的小菜
