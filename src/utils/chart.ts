@@ -2,6 +2,8 @@
 import { highchartsJs, timelineJs } from "../generated/assets";
 
 export function createChart(data: any) {
+  // 双重 stringify 得到一段带引号的 JS 字符串字面量，避免数据中的反引号、${ 或 </script> 破坏脚本
+  const dataPayload = JSON.stringify(JSON.stringify(data)).replace(/</g, "\\u003c");
   return (
     "<script>" +
     highchartsJs +
@@ -48,7 +50,7 @@ export function createChart(data: any) {
     };
   }
 
-  const mappedData = JSON.parse(String.raw\`${JSON.stringify(data)}\`)
+  const mappedData = JSON.parse(${dataPayload})
     .map((item) => {
       return {
         time: new Date(item.time),
