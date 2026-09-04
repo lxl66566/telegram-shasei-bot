@@ -111,9 +111,7 @@ export function createChart(data: any) {
   });
   Highcharts.chart("container", {
     subtitle: {
-      text: \`平均间隔：\${(intervalStats.avgInterval / 1000 / 60 / 60).toFixed(2)} 小时<br/>最小间隔：\${(intervalStats.minInterval / 1000 / 60 / 60).toFixed(
-        2,
-      )} 小时<br/>最大间隔：\${(intervalStats.maxInterval / 1000 / 60 / 60).toFixed(2)} 小时\`,
+      text: \`平均间隔：\${intervalStats.avgInterval.toFixed(2)} 小时<br/>最小间隔：\${intervalStats.minInterval.toFixed(2)} 小时<br/>最大间隔：\${intervalStats.maxInterval.toFixed(2)} 小时\`,
     },
     chart: {
       // 禁止缩放
