@@ -189,7 +189,8 @@ export class CommandHandler {
     }
 
     try {
-      const timeOffsetInMillis = timespanParser.parse(arg1[1], "ms");
+      // timespan-parser 不接受前导 +（帮助文档中的 +1d 写法），去掉后再解析
+      const timeOffsetInMillis = timespanParser.parse(arg1[1].replace(/^\+/, ""), "ms");
       const result = await this.db.modifyLastEjaculationTime(userId, timeOffsetInMillis);
 
       if (result.success && result.oldTime && result.newTime) {
